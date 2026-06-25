@@ -251,9 +251,12 @@ body {
 
 .uai-chat-input {
   grid-area: input;
+  align-self: center;
+  box-sizing: border-box;
   width: 100%;
   max-height: 170px;
-  min-height: 24px;
+  height: 38px;
+  min-height: 38px;
   resize: none;
   border: 0;
   outline: 0;
@@ -262,7 +265,8 @@ body {
   font: inherit;
   font-size: 16px;
   line-height: 1.45;
-  padding: 5px 10px;
+  padding: 7px 10px 6px;
+  overflow-y: hidden;
 }
 
 .uai-chat-input::placeholder {
@@ -448,7 +452,9 @@ body {
   }
 
   .uai-chat-input {
-    padding: 4px 10px 2px;
+    height: 34px;
+    min-height: 34px;
+    padding: 5px 10px 4px;
   }
 
   .uai-model-select {

@@ -91,7 +91,8 @@
 
   function resizeInput(input) {
     input.style.height = "auto";
-    input.style.height = Math.min(input.scrollHeight, 170) + "px";
+    var minHeight = parseFloat(window.getComputedStyle(input).minHeight) || 38;
+    input.style.height = Math.max(minHeight, Math.min(input.scrollHeight, 170)) + "px";
   }
 
   function updateSubmitState() {
