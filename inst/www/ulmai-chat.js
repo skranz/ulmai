@@ -10,7 +10,8 @@
     copy: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M5 15V5h10"></path></svg>',
     check: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>',
     retry: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.35-5.65"></path><path d="M20 4v6h-6"></path></svg>',
-    more: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h.01"></path><path d="M12 12h.01"></path><path d="M18 12h.01"></path></svg>'
+    more: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h.01"></path><path d="M12 12h.01"></path><path d="M18 12h.01"></path></svg>',
+    close: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18"></path><path d="M6 6l12 12"></path></svg>'
   };
 
   function byId(id) {
@@ -61,6 +62,8 @@
         updateSubmitState();
       });
     }
+
+    document.addEventListener("paste", handlePaste);
 
     if (voiceButton) {
       voiceButton.addEventListener("click", function () {
@@ -368,6 +371,7 @@
           previewUrl: ""
         };
         state.uploads.push(upload);
+        updateComposerUploadClass();
         reader.onload = function (event) {
           upload.previewUrl = event.target.result;
           renderUploadPreview();
@@ -377,12 +381,75 @@
     renderUploadPreview();
   }
 
+  function handlePaste(event) {
+    var files = clipboardImageFiles(event);
+    if (!files.length) return;
+
+    event.preventDefault();
+    queueImageFiles(files);
+  }
+
+  function clipboardImageFiles(event) {
+    var items = event.clipboardData && event.clipboardData.items;
+    if (!items) return [];
+
+    return Array.prototype.slice.call(items)
+      .filter(function (item) {
+        return item.kind === "file" && /^image\//.test(item.type || "");
+      })
+      .map(function (item, index) {
+        return clipboardImageFile(item.getAsFile(), index);
+      })
+      .filter(Boolean);
+  }
+
+  function clipboardImageFile(file, index) {
+    if (!file) return null;
+    var type = file.type || "image/png";
+    var name = "pasted-image-" + timestampForFileName() + "-" + (index + 1) + imageExtension(type);
+    if (typeof File === "undefined") return file;
+    return new File([file], name, { type: type });
+  }
+
+  function queueImageFiles(files) {
+    files = files.filter(function (file) {
+      return /^image\//.test(file.type || "");
+    });
+    if (!files.length) return;
+
+    var fileInput = byId("uai_image_upload");
+    if (!fileInput || typeof DataTransfer === "undefined") {
+      addLocalUploads(files);
+      updateSubmitState();
+      return;
+    }
+
+    var transfer = new DataTransfer();
+    files.forEach(function (file) {
+      transfer.items.add(file);
+    });
+    fileInput.files = transfer.files;
+    fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function timestampForFileName() {
+    return new Date().toISOString().replace(/[-:]/g, "").replace(/\..+$/, "").replace("T", "-");
+  }
+
+  function imageExtension(type) {
+    if (/jpe?g/.test(type)) return ".jpg";
+    if (/webp/.test(type)) return ".webp";
+    if (/gif/.test(type)) return ".gif";
+    return ".png";
+  }
+
   function renderUploadPreview() {
     var preview = byId("uai_upload_preview");
     if (!preview) return;
 
     preview.innerHTML = "";
     preview.classList.toggle("has-items", state.uploads.length > 0);
+    updateComposerUploadClass();
 
     state.uploads.forEach(function (upload) {
       var item = document.createElement("div");
@@ -396,7 +463,7 @@
       remove.type = "button";
       remove.setAttribute("aria-label", "Remove upload");
       remove.title = "Remove image";
-      remove.textContent = "x";
+      remove.innerHTML = icons.close;
       remove.addEventListener("click", function () {
         state.uploads = state.uploads.filter(function (candidate) {
           return candidate.localId !== upload.localId;
@@ -416,6 +483,12 @@
     state.uploads = [];
     if (fileInput) fileInput.value = "";
     renderUploadPreview();
+  }
+
+  function updateComposerUploadClass() {
+    var preview = byId("uai_upload_preview");
+    var composer = preview ? preview.closest(".uai-composer") : null;
+    if (composer) composer.classList.toggle("uai-composer-has-uploads", state.uploads.length > 0);
   }
 
   function receiveStoredUploads(records) {

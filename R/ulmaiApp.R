@@ -15,12 +15,13 @@ ulmaiApp = function(main_dir, username="skranz", role="teacher", uses_fake_ai=TR
   glob$username = uai_clean_user_name(username)
   glob$role = uai_normalize_role(role)
   glob$uses_fake_ai = uses_fake_ai
-  glob$uploads_dir = uai_uploads_dir(main_dir)
-  glob$audio_dir = uai_audio_dir(main_dir)
   glob$user_dir = uai_user_dir(main_dir=main_dir, username=glob$username)
   glob$role_user_dir = uai_role_user_dir(main_dir=main_dir, username=glob$username, role=glob$role)
+  glob$cur_session_dir = uai_cur_session_dir(user_dir=glob$user_dir)
+  glob$uploads_dir = uai_cur_session_images_dir(cur_session_dir=glob$cur_session_dir)
+  glob$audio_dir = uai_cur_session_audio_dir(cur_session_dir=glob$cur_session_dir)
 
-  uai_add_resource_paths(main_dir=main_dir)
+  uai_add_resource_paths(app=app)
   app$ui = uai_app_ui()
   uai_register_handlers(app=app)
 
@@ -32,17 +33,15 @@ ulmaiApp = function(main_dir, username="skranz", role="teacher", uses_fake_ai=TR
 }
 
 
-uai_add_resource_paths = function(main_dir) {
+uai_add_resource_paths = function(app=getApp()) {
   restore.point("uai_add_resource_paths")
   www_dir = uai_www_dir()
-  uploads_dir = uai_uploads_dir(main_dir)
-  audio_dir = uai_audio_dir(main_dir)
-  dir.create(uploads_dir, recursive=TRUE, showWarnings=FALSE)
-  dir.create(audio_dir, recursive=TRUE, showWarnings=FALSE)
+  dir.create(app$glob$uploads_dir, recursive=TRUE, showWarnings=FALSE)
+  dir.create(app$glob$audio_dir, recursive=TRUE, showWarnings=FALSE)
 
   shiny::addResourcePath(prefix="ulmai", directoryPath=www_dir)
-  shiny::addResourcePath(prefix="ulmai-uploads", directoryPath=uploads_dir)
-  shiny::addResourcePath(prefix="ulmai-audio", directoryPath=audio_dir)
+  shiny::addResourcePath(prefix="ulmai-uploads", directoryPath=app$glob$uploads_dir)
+  shiny::addResourcePath(prefix="ulmai-audio", directoryPath=app$glob$audio_dir)
   invisible(TRUE)
 }
 
@@ -59,15 +58,10 @@ uai_www_dir = function() {
 }
 
 
-uai_uploads_dir = function(main_dir) {
-  restore.point("uai_uploads_dir")
-  file.path(main_dir, "uploads")
-}
-
-
 uai_init_storage = function(main_dir, app=getApp()) {
   restore.point("uai_init_storage")
   dir.create(main_dir, recursive=TRUE, showWarnings=FALSE)
+  dir.create(app$glob$cur_session_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$uploads_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$audio_dir, recursive=TRUE, showWarnings=FALSE)
   uai_init_user_dirs(app=app)
@@ -182,13 +176,13 @@ uai_composer_ui = function() {
   tags$footer(
     class = "uai-composer-wrap",
     tags$div(
-      id = "uai_upload_preview",
-      class = "uai-upload-preview",
-      `aria-live` = "polite"
-    ),
-    tags$div(
       class = "uai-composer",
       uai_audio_recording_ui(),
+      tags$div(
+        id = "uai_upload_preview",
+        class = "uai-upload-preview",
+        `aria-live` = "polite"
+      ),
       tags$button(
         id = "uai_upload_btn",
         class = "uai-icon-button",

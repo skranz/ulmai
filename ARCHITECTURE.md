@@ -11,7 +11,7 @@ This keeps the Shiny server focused on work that actually needs R: storing uploa
 The app uses `eventsApp()` and registers explicit shinyEvents handlers in `uai_register_handlers()`.
 
 - `uai_submit_chat_event`: sent by JavaScript when the user submits a message. The payload includes the text, selected model, client message id, assistant placeholder id, and upload metadata.
-- `uai_image_upload`: handled through Shiny's file input binding when the hidden file input changes. The server copies uploaded image files into `main_dir/uploads`.
+- `uai_image_upload`: handled through Shiny's file input binding when the hidden file input changes. The server copies uploaded image files into the active user's current session image folder.
 
 The fake AI answer still comes from `uai_ask_ai()`. When a real AI backend is added, `uai_handle_chat_submit()` is the main integration point.
 
@@ -43,10 +43,12 @@ The active role is still available in `app$glob$role_user_dir`. Shared server-si
 Uploaded images are copied under:
 
 ```text
-main_dir/uploads/<session-token>/<upload-id>_<clean-file-name>
+main_dir/users/<username>/cur_session/images/<session-token>/<upload-id>_<clean-file-name>
 ```
 
-The app exposes `main_dir/uploads` as the Shiny resource path `ulmai-uploads`, so stored files can later be referenced from the browser if needed. The current UI uses local `FileReader` previews immediately and then records the server-side upload id once R confirms storage.
+The app exposes `main_dir/users/<username>/cur_session/images` as the Shiny resource path `ulmai-uploads`, so stored files can later be referenced from the browser if needed. The current UI uses local `FileReader` previews immediately and then records the server-side upload id once R confirms storage.
+
+Images can arrive either through the upload button or by pasting from the clipboard. The browser normalizes pasted clipboard images into named `File` objects, assigns them to the hidden Shiny file input, and shows thumbnail previews inside the composer.
 
 ## Current Placeholders
 
@@ -69,7 +71,7 @@ Audio format, quality, and mic sensitivity are stored in browser `localStorage` 
 When the user presses Done, the browser creates an audio `File` from the recorded blob and assigns it to the hidden Shiny file input `uai_audio_upload`. The R handler in `R/audio.R` receives the normal Shiny upload metadata and copies the file into:
 
 ```text
-main_dir/audio/<session-token>/<audio-id>_<clean-file-name>
+main_dir/users/<username>/cur_session/audio/<session-token>/<audio-id>_<clean-file-name>
 ```
 
 The handler then calls `window.UlmAIAudio.receiveStoredAudio(...)` with the stored file record, including the server-side path. The most recent record is also kept in `app$glob$last_audio_recording`.

@@ -1,9 +1,3 @@
-uai_audio_dir = function(main_dir) {
-  restore.point("uai_audio_dir")
-  file.path(main_dir, "audio")
-}
-
-
 uai_register_audio_handlers = function(app=getApp()) {
   restore.point("uai_register_audio_handlers")
   changeHandler(
