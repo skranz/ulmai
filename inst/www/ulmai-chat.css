@@ -276,6 +276,91 @@ body {
   padding: 5px 7px 5px 10px;
 }
 
+.uai-recording-panel {
+  display: none;
+  grid-area: input;
+}
+
+.uai-composer.uai-composer-recording {
+  grid-template-areas: "recording recording recording recording recording";
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 58px;
+  border-radius: 29px;
+  padding: 7px 10px;
+}
+
+.uai-composer.uai-composer-recording .uai-recording-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  grid-area: recording;
+}
+
+.uai-composer.uai-composer-recording #uai_upload_btn,
+.uai-composer.uai-composer-recording .uai-chat-input,
+.uai-composer.uai-composer-recording .uai-model-select,
+.uai-composer.uai-composer-recording #uai_voice_btn,
+.uai-composer.uai-composer-recording #uai_submit_btn {
+  display: none;
+}
+
+.uai-recording-cancel,
+.uai-recording-finish {
+  min-width: 74px;
+  height: 40px;
+  border: 0;
+  border-radius: 20px;
+  font: inherit;
+  font-size: 14px;
+  padding: 0 16px;
+}
+
+.uai-recording-cancel {
+  background: #f2f2f2;
+  color: #151515;
+}
+
+.uai-recording-cancel:hover {
+  background: #e8e8e8;
+}
+
+.uai-recording-finish {
+  background: #111111;
+  color: #ffffff;
+}
+
+.uai-recording-finish:hover {
+  background: #2a2a2a;
+}
+
+.uai-recording-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  gap: 9px;
+  color: #222222;
+  font-size: 15px;
+}
+
+.uai-recording-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d93025;
+  box-shadow: 0 0 0 4px rgba(217, 48, 37, 0.12);
+}
+
+.uai-recording-timer {
+  min-width: 42px;
+  font-variant-numeric: tabular-nums;
+}
+
+.uai-recording-label {
+  color: #666666;
+}
+
 .uai-composer.uai-composer-multiline {
   grid-template-areas:
     "input input input input input"

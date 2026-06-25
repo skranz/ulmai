@@ -43,3 +43,15 @@ The model selector and voice button are UI-ready but intentionally light. The se
 Assistant messages keep enough client-side metadata to support local action buttons. Copy reads the rendered answer text, while redo resends the saved submit payload and replaces the existing assistant answer when the server returns.
 
 The sidebar is also client-owned. Its hide/show state toggles a class on the app shell, letting CSS move the main chat window and composer into the freed space without a server round-trip.
+
+## Audio Recording
+
+Audio recording is implemented in `inst/www/ulmai-audio.js` with the browser `MediaRecorder` API, avoiding an extra JavaScript dependency. Pressing the microphone button switches the composer into a recording state with cancel, timer/status, and done controls.
+
+When the user presses Done, the browser creates an audio `File` from the recorded blob and assigns it to the hidden Shiny file input `uai_audio_upload`. The R handler in `R/audio.R` receives the normal Shiny upload metadata and copies the file into:
+
+```text
+main_dir/audio/<session-token>/<audio-id>_<clean-file-name>
+```
+
+The handler then calls `window.UlmAIAudio.receiveStoredAudio(...)` with the stored file record, including the server-side path. The most recent record is also kept in `app$glob$last_audio_recording`.

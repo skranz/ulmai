@@ -63,7 +63,11 @@
     }
 
     if (voiceButton) {
-      voiceButton.addEventListener("click", toggleVoiceButton);
+      voiceButton.addEventListener("click", function () {
+        if (window.UlmAIAudio && window.UlmAIAudio.startRecording) {
+          window.UlmAIAudio.startRecording();
+        }
+      });
     }
 
     if (sidebarClose) {
@@ -455,14 +459,6 @@
     var app = byId("uai_app");
     if (!app) return;
     app.classList.toggle("uai-sidebar-hidden", Boolean(hidden));
-  }
-
-  function toggleVoiceButton() {
-    var voiceButton = byId("uai_voice_btn");
-    if (!voiceButton) return;
-    state.isRecording = !state.isRecording;
-    voiceButton.classList.toggle("uai-voice-active", state.isRecording);
-    voiceButton.setAttribute("aria-pressed", state.isRecording ? "true" : "false");
   }
 
   function scrollMessagesToBottom() {

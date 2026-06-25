@@ -1,5 +1,4 @@
 example = function() {
-  restore.point("example")
   library(ulmai)
   restore.point.options(display.restore.point = TRUE)
   main_dir = "C:/libraries/ulmai/ulmai_main"
@@ -15,6 +14,7 @@ ulmaiApp = function(main_dir, uses_fake_ai=TRUE) {
   glob$main_dir = main_dir
   glob$uses_fake_ai = uses_fake_ai
   glob$uploads_dir = uai_uploads_dir(main_dir)
+  glob$audio_dir = uai_audio_dir(main_dir)
 
   uai_add_resource_paths(main_dir=main_dir)
   app$ui = uai_app_ui()
@@ -32,10 +32,13 @@ uai_add_resource_paths = function(main_dir) {
   restore.point("uai_add_resource_paths")
   www_dir = uai_www_dir()
   uploads_dir = uai_uploads_dir(main_dir)
+  audio_dir = uai_audio_dir(main_dir)
   dir.create(uploads_dir, recursive=TRUE, showWarnings=FALSE)
+  dir.create(audio_dir, recursive=TRUE, showWarnings=FALSE)
 
   shiny::addResourcePath(prefix="ulmai", directoryPath=www_dir)
   shiny::addResourcePath(prefix="ulmai-uploads", directoryPath=uploads_dir)
+  shiny::addResourcePath(prefix="ulmai-audio", directoryPath=audio_dir)
   invisible(TRUE)
 }
 
@@ -62,6 +65,7 @@ uai_init_storage = function(main_dir, app=getApp()) {
   restore.point("uai_init_storage")
   dir.create(main_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$uploads_dir, recursive=TRUE, showWarnings=FALSE)
+  dir.create(app$glob$audio_dir, recursive=TRUE, showWarnings=FALSE)
   invisible(TRUE)
 }
 
@@ -79,6 +83,7 @@ uai_register_handlers = function(app=getApp()) {
     fun = uai_handle_image_upload,
     app = app
   )
+  uai_register_audio_handlers(app=app)
   invisible(TRUE)
 }
 
@@ -87,10 +92,11 @@ uai_app_ui = function() {
   restore.point("uai_app_ui")
   intro = uai_intro_msg()
   tagList(
-    tags$head(
+  tags$head(
       tags$meta(name="viewport", content="width=device-width, initial-scale=1"),
       tags$link(rel="stylesheet", type="text/css", href="ulmai/ulmai-chat.css"),
-      tags$script(src="ulmai/ulmai-chat.js")
+      tags$script(src="ulmai/ulmai-chat.js"),
+      tags$script(src="ulmai/ulmai-audio.js")
     ),
     tags$div(
       class = "uai-fluid",
@@ -143,6 +149,12 @@ uai_app_ui = function() {
           type = "file",
           accept = "image/*",
           multiple = "multiple"
+        ),
+        tags$input(
+          id = "uai_audio_upload",
+          class = "uai-file-input",
+          type = "file",
+          accept = "audio/*"
         )
       )
     )
@@ -171,6 +183,7 @@ uai_composer_ui = function() {
     ),
     tags$div(
       class = "uai-composer",
+      uai_audio_recording_ui(),
       tags$button(
         id = "uai_upload_btn",
         class = "uai-icon-button",
@@ -211,6 +224,37 @@ uai_composer_ui = function() {
         title = "Send message",
         HTML(uai_icon_svg("send"))
       )
+    )
+  )
+}
+
+
+uai_audio_recording_ui = function() {
+  restore.point("uai_audio_recording_ui")
+  tags$div(
+    id = "uai_recording_panel",
+    class = "uai-recording-panel",
+    tags$button(
+      id = "uai_recording_cancel",
+      class = "uai-recording-cancel",
+      type = "button",
+      `aria-label` = "Cancel recording",
+      title = "Cancel recording",
+      "Cancel"
+    ),
+    tags$div(
+      class = "uai-recording-status",
+      tags$span(class="uai-recording-dot"),
+      tags$span(id="uai_recording_timer", class="uai-recording-timer", "0:00"),
+      tags$span(class="uai-recording-label", "Recording")
+    ),
+    tags$button(
+      id = "uai_recording_finish",
+      class = "uai-recording-finish",
+      type = "button",
+      `aria-label` = "Finish recording",
+      title = "Finish recording",
+      "Done"
     )
   )
 }
