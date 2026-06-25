@@ -39,3 +39,7 @@ The app exposes `main_dir/uploads` as the Shiny resource path `ulmai-uploads`, s
 ## Current Placeholders
 
 The model selector and voice button are UI-ready but intentionally light. The selected model is included in the submit payload, while voice recording currently only toggles a recording state in the client. Both can be connected to server-side behavior without changing the chat layout.
+
+Assistant messages keep enough client-side metadata to support local action buttons. Copy reads the rendered answer text, while redo resends the saved submit payload and replaces the existing assistant answer when the server returns.
+
+The sidebar is also client-owned. Its hide/show state toggles a class on the app shell, letting CSS move the main chat window and composer into the freed space without a server round-trip.

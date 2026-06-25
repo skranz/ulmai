@@ -2,7 +2,8 @@
   var state = {
     uploads: [],
     messageIndex: 0,
-    isRecording: false
+    isRecording: false,
+    assistantRequests: {}
   };
 
   var icons = {
@@ -27,6 +28,8 @@
     var uploadButton = byId("uai_upload_btn");
     var fileInput = byId("uai_image_upload");
     var voiceButton = byId("uai_voice_btn");
+    var sidebarClose = byId("uai_sidebar_close");
+    var sidebarToggle = byId("uai_sidebar_toggle");
 
     if (!messages || !input || !submitButton) return;
 
@@ -60,6 +63,18 @@
 
     if (voiceButton) {
       voiceButton.addEventListener("click", toggleVoiceButton);
+    }
+
+    if (sidebarClose) {
+      sidebarClose.addEventListener("click", function () {
+        setSidebarHidden(true);
+      });
+    }
+
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener("click", function () {
+        setSidebarHidden(false);
+      });
     }
   }
 
@@ -97,6 +112,23 @@
 
     var clientMessageId = nextId("user");
     var assistantMessageId = nextId("assistant");
+    var payload = {
+      id: "uai_submit_chat",
+      clientMessageId: clientMessageId,
+      assistantMessageId: assistantMessageId,
+      text: text,
+      model: modelSelect ? modelSelect.value : null,
+      uploads: uploads.map(function (upload) {
+        return {
+          id: upload.serverId || upload.localId,
+          name: upload.name,
+          size: upload.size,
+          type: upload.type
+        };
+      }),
+      nonce: Math.random()
+    };
+
     appendUserMessage({
       id: clientMessageId,
       text: text,
@@ -115,22 +147,8 @@
     updateSubmitState();
     scrollMessagesToBottom();
 
-    sendChatEvent({
-      id: "uai_submit_chat",
-      clientMessageId: clientMessageId,
-      assistantMessageId: assistantMessageId,
-      text: text,
-      model: modelSelect ? modelSelect.value : null,
-      uploads: uploads.map(function (upload) {
-        return {
-          id: upload.serverId || upload.localId,
-          name: upload.name,
-          size: upload.size,
-          type: upload.type
-        };
-      }),
-      nonce: Math.random()
-    });
+    state.assistantRequests[assistantMessageId] = payload;
+    sendChatEvent(payload);
   }
 
   function sendChatEvent(payload) {
@@ -192,7 +210,7 @@
     bubble.appendChild(text);
 
     if (!message.thinking) {
-      bubble.appendChild(renderAssistantActions(message.text || ""));
+      bubble.appendChild(renderAssistantActions(message.id, message.text || ""));
     }
 
     article.appendChild(bubble);
@@ -200,25 +218,64 @@
     scrollMessagesToBottom();
   }
 
-  function renderAssistantActions(text) {
+  function renderAssistantActions(messageId, text) {
     var actions = document.createElement("div");
+    var canRetry = Boolean(state.assistantRequests[messageId]);
     actions.className = "uai-message-actions";
     actions.appendChild(miniAction("Copy", icons.copy, function () {
-      if (navigator.clipboard) navigator.clipboard.writeText(text);
+      copyText(text);
     }));
-    actions.appendChild(miniAction("Retry", icons.retry, function () {}));
+    actions.appendChild(miniAction("Redo", icons.retry, function () {
+      retryAssistantMessage(messageId);
+    }, !canRetry));
     actions.appendChild(miniAction("More", icons.more, function () {}));
     return actions;
   }
 
-  function miniAction(label, icon, onClick) {
+  function miniAction(label, icon, onClick, disabled) {
     var button = document.createElement("button");
     button.className = "uai-mini-action";
     button.type = "button";
     button.setAttribute("aria-label", label);
     button.innerHTML = icon;
-    button.addEventListener("click", onClick);
+    button.disabled = Boolean(disabled);
+    if (!disabled) button.addEventListener("click", onClick);
     return button;
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      return;
+    }
+
+    var textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "absolute";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+  }
+
+  function retryAssistantMessage(messageId) {
+    var payload = state.assistantRequests[messageId];
+    var article = byId(messageId);
+    if (!payload || !article) return;
+
+    var messageText = article.querySelector(".uai-message-text");
+    var actions = article.querySelector(".uai-message-actions");
+    var meta = article.querySelector(".uai-message-meta");
+
+    article.classList.add("uai-thinking");
+    if (meta) meta.remove();
+    if (actions) actions.remove();
+    if (messageText) messageText.textContent = "Thinking...";
+
+    payload.nonce = Math.random();
+    sendChatEvent(payload);
   }
 
   function textBlock(text) {
@@ -338,9 +395,15 @@
     if (meta) meta.remove();
     if (messageText) messageText.textContent = text || "";
     if (bubble && !bubble.querySelector(".uai-message-actions")) {
-      bubble.appendChild(renderAssistantActions(text || ""));
+      bubble.appendChild(renderAssistantActions(messageId, text || ""));
     }
     scrollMessagesToBottom();
+  }
+
+  function setSidebarHidden(hidden) {
+    var app = byId("uai_app");
+    if (!app) return;
+    app.classList.toggle("uai-sidebar-hidden", Boolean(hidden));
   }
 
   function toggleVoiceButton() {
@@ -360,6 +423,7 @@
   window.UlmAI = window.UlmAI || {};
   window.UlmAI.receiveAssistantMessage = receiveAssistantMessage;
   window.UlmAI.receiveStoredUploads = receiveStoredUploads;
+  window.UlmAI.setSidebarHidden = setSidebarHidden;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

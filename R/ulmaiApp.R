@@ -1,5 +1,4 @@
 example = function() {
-  restore.point("example")
   library(ulmai)
   restore.point.options(display.restore.point = TRUE)
   main_dir = "C:/libraries/ulmai/ulmai_main"
@@ -99,6 +98,13 @@ uai_app_ui = function() {
         class = "uai-app",
         tags$aside(
           class = "uai-sidebar",
+          tags$button(
+            id = "uai_sidebar_close",
+            class = "uai-icon-button uai-sidebar-close",
+            type = "button",
+            `aria-label` = "Hide sidebar",
+            HTML(uai_icon_svg("panel"))
+          ),
           tags$div(
             class = "uai-brand",
             tags$div(class="uai-brand-title", "UlmAI"),
@@ -111,7 +117,7 @@ uai_app_ui = function() {
             class = "uai-topbar",
             tags$button(
               id = "uai_sidebar_toggle",
-              class = "uai-icon-button uai-mobile-only",
+              class = "uai-icon-button uai-sidebar-toggle",
               type = "button",
               `aria-label` = "Toggle sidebar",
               HTML(uai_icon_svg("panel"))
@@ -167,7 +173,7 @@ uai_composer_ui = function() {
         class = "uai-icon-button",
         type = "button",
         `aria-label` = "Upload image",
-        HTML(uai_icon_svg("plus"))
+        HTML(uai_icon_svg("image"))
       ),
       tags$textarea(
         id = "uai_chat_input",
@@ -207,7 +213,7 @@ uai_icon_svg = function(name) {
   restore.point("uai_icon_svg")
   icons = list(
     panel = '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M9 4v16"></path></svg>',
-    plus = '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>',
+    image = '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 15l-5-5L5 19"></path></svg>',
     mic = '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><path d="M12 19v3"></path></svg>',
     send = '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>'
   )

@@ -24,18 +24,42 @@ body {
   background: #ffffff;
 }
 
+.uai-app.uai-sidebar-hidden {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
 .uai-sidebar {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
   border-right: 1px solid #e8e8e8;
   background: #f7f7f7;
   padding: 22px 18px;
 }
 
+.uai-sidebar-hidden .uai-sidebar {
+  border-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.uai-sidebar-hidden .uai-brand,
+.uai-sidebar-hidden .uai-sidebar-close {
+  display: none;
+}
+
+.uai-sidebar-close {
+  position: absolute;
+  top: 16px;
+  right: 14px;
+}
+
 .uai-brand {
   display: grid;
   gap: 6px;
+  padding-right: 46px;
 }
 
 .uai-brand-title {
@@ -64,6 +88,14 @@ body {
   grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
   padding: 0 28px;
+}
+
+.uai-sidebar-toggle {
+  visibility: hidden;
+}
+
+.uai-sidebar-hidden .uai-sidebar-toggle {
+  visibility: visible;
 }
 
 .uai-chat-title {
@@ -161,6 +193,15 @@ body {
   background: #f2f2f2;
 }
 
+.uai-mini-action:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.uai-mini-action:disabled:hover {
+  background: transparent;
+}
+
 .uai-attachments {
   display: flex;
   flex-wrap: wrap;
@@ -189,23 +230,30 @@ body {
   background: linear-gradient(to top, #ffffff 72%, rgba(255, 255, 255, 0));
 }
 
+.uai-sidebar-hidden .uai-composer-wrap {
+  left: 0;
+}
+
 .uai-composer {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) auto 42px 48px;
-  align-items: end;
+  grid-template-areas: "upload input model voice submit";
+  grid-template-columns: 38px minmax(0, 1fr) auto 38px 42px;
+  align-items: center;
+  column-gap: 4px;
   width: min(760px, 100%);
-  min-height: 64px;
+  min-height: 52px;
   border: 1px solid #e3e3e3;
-  border-radius: 32px;
+  border-radius: 26px;
   background: #ffffff;
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.08);
-  padding: 9px 10px 9px 14px;
+  padding: 5px 7px 5px 10px;
 }
 
 .uai-chat-input {
+  grid-area: input;
   width: 100%;
   max-height: 170px;
-  min-height: 42px;
+  min-height: 24px;
   resize: none;
   border: 0;
   outline: 0;
@@ -214,7 +262,7 @@ body {
   font: inherit;
   font-size: 16px;
   line-height: 1.45;
-  padding: 10px 10px 8px;
+  padding: 5px 10px;
 }
 
 .uai-chat-input::placeholder {
@@ -224,8 +272,8 @@ body {
 .uai-icon-button,
 .uai-submit-button {
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   place-items: center;
   border: 0;
   border-radius: 50%;
@@ -239,8 +287,8 @@ body {
 }
 
 .uai-submit-button {
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   background: #111111;
   color: #ffffff;
 }
@@ -251,8 +299,8 @@ body {
 }
 
 .uai-icon {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -261,6 +309,7 @@ body {
 }
 
 .uai-model-select {
+  grid-area: model;
   align-self: center;
   max-width: 102px;
   border: 0;
@@ -271,6 +320,18 @@ body {
   font: inherit;
   font-size: 15px;
   padding: 9px 8px;
+}
+
+#uai_upload_btn {
+  grid-area: upload;
+}
+
+#uai_voice_btn {
+  grid-area: voice;
+}
+
+#uai_submit_btn {
+  grid-area: submit;
 }
 
 .uai-model-select:hover,
@@ -331,10 +392,6 @@ body {
   color: #ffffff;
 }
 
-.uai-mobile-only {
-  visibility: hidden;
-}
-
 @media (max-width: 820px) {
   .uai-app {
     grid-template-columns: 1fr;
@@ -342,6 +399,10 @@ body {
 
   .uai-sidebar {
     display: none;
+  }
+
+  .uai-app.uai-sidebar-hidden {
+    grid-template-columns: 1fr;
   }
 
   .uai-main {
@@ -353,7 +414,7 @@ body {
     padding: 0 12px;
   }
 
-  .uai-mobile-only {
+  .uai-sidebar-toggle {
     visibility: visible;
   }
 
@@ -376,10 +437,18 @@ body {
   }
 
   .uai-composer {
+    grid-template-areas:
+      "input input input input input"
+      "upload spacer model voice submit";
     grid-template-columns: 40px minmax(0, 1fr) auto 40px 44px;
-    min-height: 58px;
-    border-radius: 29px;
-    padding: 7px 8px 7px 10px;
+    row-gap: 4px;
+    min-height: 84px;
+    border-radius: 24px;
+    padding: 8px 8px 7px 10px;
+  }
+
+  .uai-chat-input {
+    padding: 4px 10px 2px;
   }
 
   .uai-model-select {
