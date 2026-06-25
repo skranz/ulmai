@@ -291,9 +291,9 @@ body {
 
 .uai-composer.uai-composer-recording .uai-recording-panel {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   grid-area: recording;
 }
 
@@ -339,7 +339,7 @@ body {
   align-items: center;
   justify-content: center;
   min-width: 0;
-  gap: 9px;
+  gap: 8px;
   color: #222222;
   font-size: 15px;
 }
@@ -359,6 +359,36 @@ body {
 
 .uai-recording-label {
   color: #666666;
+}
+
+.uai-recording-wave {
+  width: 128px;
+  height: 28px;
+}
+
+.uai-recording-options {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.uai-audio-select {
+  max-width: 92px;
+  height: 34px;
+  border: 0;
+  border-radius: 17px;
+  outline: 0;
+  background: #f4f4f4;
+  color: #444444;
+  font: inherit;
+  font-size: 13px;
+  padding: 0 8px;
+}
+
+.uai-audio-select:hover,
+.uai-audio-select:focus {
+  background: #ebebeb;
+  color: #111111;
 }
 
 .uai-composer.uai-composer-multiline {
@@ -565,6 +595,39 @@ body {
   .uai-composer-wrap {
     left: 0;
     padding: 14px 12px 16px;
+  }
+
+  .uai-composer.uai-composer-recording {
+    min-height: 126px;
+  }
+
+  .uai-composer.uai-composer-recording .uai-recording-panel {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "cancel status finish"
+      "options options options";
+    row-gap: 8px;
+  }
+
+  .uai-recording-cancel {
+    grid-area: cancel;
+  }
+
+  .uai-recording-status {
+    grid-area: status;
+  }
+
+  .uai-recording-options {
+    grid-area: options;
+    justify-content: center;
+  }
+
+  .uai-recording-finish {
+    grid-area: finish;
+  }
+
+  .uai-recording-wave {
+    width: 84px;
   }
 
   .uai-composer {

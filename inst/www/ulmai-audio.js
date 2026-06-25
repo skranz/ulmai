@@ -5,7 +5,12 @@
     chunks: [],
     startedAt: null,
     timerId: null,
-    shouldSave: false
+    shouldSave: false,
+    audioContext: null,
+    audioSource: null,
+    analyser: null,
+    waveFrameId: null,
+    waveData: null
   };
 
   function byId(id) {
@@ -45,6 +50,7 @@
       state.mediaRecorder.addEventListener("stop", handleRecordingStopped);
       state.mediaRecorder.start();
       showRecordingUi();
+      startWaveform();
       startTimer();
     } catch (error) {
       showRecordingNotice("Microphone access was denied.");
@@ -52,16 +58,45 @@
   }
 
   function mediaRecorderOptions() {
-    var types = [
-      "audio/webm;codecs=opus",
-      "audio/webm",
-      "audio/ogg;codecs=opus",
-      "audio/mp4"
-    ];
+    var format = selectedValue("uai_audio_format", "auto");
+    var types = candidateMimeTypes(format);
     var match = types.find(function (type) {
       return MediaRecorder.isTypeSupported(type);
     });
-    return match ? { mimeType: match } : {};
+    var options = audioQualityOptions();
+    if (match) {
+      options.mimeType = match;
+      return options;
+    }
+    if (format !== "auto") {
+      setAudioStatus("Format unavailable, using browser default.");
+    }
+    return options;
+  }
+
+  function candidateMimeTypes(format) {
+    var byFormat = {
+      webm: ["audio/webm;codecs=opus", "audio/webm"],
+      ogg: ["audio/ogg;codecs=opus", "audio/ogg"],
+      mp4: ["audio/mp4;codecs=mp4a.40.2", "audio/mp4"]
+    };
+    if (format !== "auto" && byFormat[format]) return byFormat[format];
+    return byFormat.webm.concat(byFormat.ogg, byFormat.mp4);
+  }
+
+  function audioQualityOptions() {
+    var quality = selectedValue("uai_audio_quality", "standard");
+    var bits = {
+      small: 32000,
+      standard: 64000,
+      high: 128000
+    };
+    return { audioBitsPerSecond: bits[quality] || bits.standard };
+  }
+
+  function selectedValue(id, fallback) {
+    var input = byId(id);
+    return input && input.value ? input.value : fallback;
   }
 
   function finishRecording() {
@@ -82,6 +117,7 @@
 
   function handleRecordingStopped() {
     stopTimer();
+    stopWaveform();
     stopStream();
 
     if (!state.shouldSave) {
@@ -141,12 +177,15 @@
   function showRecordingUi() {
     var composer = document.querySelector(".uai-composer");
     var voiceButton = byId("uai_voice_btn");
+    var label = document.querySelector(".uai-recording-label");
     if (composer) composer.classList.add("uai-composer-recording");
     if (voiceButton) {
       voiceButton.classList.add("uai-voice-active");
       voiceButton.setAttribute("aria-pressed", "true");
     }
-    setAudioStatus("Recording");
+    if (!label || label.textContent !== "Format unavailable, using browser default.") {
+      setAudioStatus("Recording");
+    }
   }
 
   function showRecordingNotice(text) {
@@ -169,6 +208,7 @@
     state.shouldSave = false;
     setTimerText("0:00");
     setAudioStatus("Recording");
+    clearWaveform();
   }
 
   function resetRecordingUiSoon() {
@@ -202,6 +242,75 @@
   function setAudioStatus(text) {
     var label = document.querySelector(".uai-recording-label");
     if (label) label.textContent = text;
+  }
+
+  function startWaveform() {
+    var canvas = byId("uai_recording_wave");
+    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!canvas || !state.stream || !AudioContextClass) {
+      clearWaveform();
+      return;
+    }
+
+    state.audioContext = new AudioContextClass();
+    state.analyser = state.audioContext.createAnalyser();
+    state.analyser.fftSize = 256;
+    state.waveData = new Uint8Array(state.analyser.frequencyBinCount);
+    state.audioSource = state.audioContext.createMediaStreamSource(state.stream);
+    state.audioSource.connect(state.analyser);
+    drawWaveform();
+  }
+
+  function drawWaveform() {
+    var canvas = byId("uai_recording_wave");
+    if (!canvas || !state.analyser || !state.waveData) return;
+
+    var context = canvas.getContext("2d");
+    var width = canvas.width;
+    var height = canvas.height;
+    var bars = 24;
+    var barGap = 3;
+    var barWidth = Math.max(2, Math.floor((width - (bars - 1) * barGap) / bars));
+
+    state.analyser.getByteTimeDomainData(state.waveData);
+    context.clearRect(0, 0, width, height);
+    context.fillStyle = "#d8d8d8";
+
+    for (var i = 0; i < bars; i += 1) {
+      var start = Math.floor(i * state.waveData.length / bars);
+      var end = Math.floor((i + 1) * state.waveData.length / bars);
+      var sum = 0;
+      for (var j = start; j < end; j += 1) {
+        sum += Math.abs(state.waveData[j] - 128);
+      }
+      var level = sum / Math.max(1, end - start) / 128;
+      var barHeight = Math.max(4, Math.round(level * height * 1.8));
+      var x = i * (barWidth + barGap);
+      var y = Math.round((height - barHeight) / 2);
+      context.fillRect(x, y, barWidth, barHeight);
+    }
+
+    state.waveFrameId = window.requestAnimationFrame(drawWaveform);
+  }
+
+  function stopWaveform() {
+    if (state.waveFrameId) {
+      window.cancelAnimationFrame(state.waveFrameId);
+      state.waveFrameId = null;
+    }
+    if (state.audioContext) {
+      state.audioContext.close();
+      state.audioContext = null;
+    }
+    state.audioSource = null;
+    state.analyser = null;
+    state.waveData = null;
+  }
+
+  function clearWaveform() {
+    var canvas = byId("uai_recording_wave");
+    if (!canvas) return;
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
   }
 
   function stopStream() {

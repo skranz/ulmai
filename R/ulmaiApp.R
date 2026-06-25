@@ -246,7 +246,36 @@ uai_audio_recording_ui = function() {
       class = "uai-recording-status",
       tags$span(class="uai-recording-dot"),
       tags$span(id="uai_recording_timer", class="uai-recording-timer", "0:00"),
-      tags$span(class="uai-recording-label", "Recording")
+      tags$span(class="uai-recording-label", "Recording"),
+      tags$canvas(
+        id = "uai_recording_wave",
+        class = "uai-recording-wave",
+        width = "180",
+        height = "34",
+        `aria-label` = "Recording level"
+      )
+    ),
+    tags$div(
+      class = "uai-recording-options",
+      tags$select(
+        id = "uai_audio_format",
+        class = "uai-audio-select",
+        `aria-label` = "Audio format",
+        title = "Audio format",
+        tags$option(value="auto", selected="selected", "Auto"),
+        tags$option(value="webm", "WebM"),
+        tags$option(value="ogg", "Ogg"),
+        tags$option(value="mp4", "MP4")
+      ),
+      tags$select(
+        id = "uai_audio_quality",
+        class = "uai-audio-select",
+        `aria-label` = "Audio quality",
+        title = "Audio quality",
+        tags$option(value="standard", selected="selected", "Standard"),
+        tags$option(value="small", "Small"),
+        tags$option(value="high", "High")
+      )
     ),
     tags$button(
       id = "uai_recording_finish",

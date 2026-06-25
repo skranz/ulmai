@@ -48,6 +48,10 @@ The sidebar is also client-owned. Its hide/show state toggles a class on the app
 
 Audio recording is implemented in `inst/www/ulmai-audio.js` with the browser `MediaRecorder` API, avoiding an extra JavaScript dependency. Pressing the microphone button switches the composer into a recording state with cancel, timer/status, and done controls.
 
+The recording UI offers format and quality choices. `Auto` prefers efficient Opus-based WebM when the browser supports it, then falls back through Ogg and MP4. Quality maps to `audioBitsPerSecond`: Small is 32 kbps, Standard is 64 kbps, and High is 128 kbps. Browsers may ignore or adjust these hints, so the client uses feature detection and falls back to the browser default if a selected MIME type is unavailable.
+
+While recording, a lightweight waveform is drawn on a canvas using the Web Audio `AnalyserNode`. This stays entirely client-side and is only a visual indication of current microphone level.
+
 When the user presses Done, the browser creates an audio `File` from the recorded blob and assigns it to the hidden Shiny file input `uai_audio_upload`. The R handler in `R/audio.R` receives the normal Shiny upload metadata and copies the file into:
 
 ```text
