@@ -276,6 +276,21 @@ body {
   padding: 5px 7px 5px 10px;
 }
 
+.uai-composer.uai-composer-multiline {
+  grid-template-areas:
+    "input input input input input"
+    "upload spacer model voice submit";
+  grid-template-columns: 38px minmax(0, 1fr) auto 38px 42px;
+  row-gap: 4px;
+  border-radius: 24px;
+  padding: 9px 7px 7px 10px;
+}
+
+.uai-composer.uai-composer-multiline .uai-chat-input {
+  align-self: start;
+  padding: 5px 10px 4px;
+}
+
 .uai-chat-input {
   grid-area: input;
   align-self: center;
@@ -468,17 +483,22 @@ body {
   }
 
   .uai-composer {
+    grid-template-columns: 40px minmax(0, 1fr) auto 40px 44px;
+  }
+
+  .uai-composer.uai-composer-multiline,
+  .uai-composer {
     grid-template-areas:
       "input input input input input"
       "upload spacer model voice submit";
-    grid-template-columns: 40px minmax(0, 1fr) auto 40px 44px;
     row-gap: 4px;
     min-height: 84px;
     border-radius: 24px;
     padding: 8px 8px 7px 10px;
   }
 
-  .uai-chat-input {
+  .uai-chat-input,
+  .uai-composer.uai-composer-multiline .uai-chat-input {
     height: 34px;
     min-height: 34px;
     padding: 5px 10px 4px;

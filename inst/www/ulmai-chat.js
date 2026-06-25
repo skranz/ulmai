@@ -91,9 +91,17 @@
   }
 
   function resizeInput(input) {
-    input.style.height = "auto";
+    var composer = input.closest(".uai-composer");
     var minHeight = parseFloat(window.getComputedStyle(input).minHeight) || 38;
-    input.style.height = Math.max(minHeight, Math.min(input.scrollHeight, 170)) + "px";
+    if (composer) composer.classList.remove("uai-composer-multiline");
+
+    input.style.height = "auto";
+    var multiline = input.value.indexOf("\n") !== -1 || input.scrollHeight > minHeight + 2;
+    if (composer) composer.classList.toggle("uai-composer-multiline", multiline);
+
+    input.style.height = "auto";
+    var nextHeight = Math.max(minHeight, Math.min(input.scrollHeight, 170));
+    input.style.height = nextHeight + "px";
   }
 
   function updateSubmitState() {
