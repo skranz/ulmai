@@ -26,6 +26,18 @@ The fake AI answer still comes from `uai_ask_ai()`. When a real AI backend is ad
 
 The first assistant message is created through `uai_intro_msg()`. It is currently simple on purpose so it can later become course-, user-, or context-specific.
 
+## Users And Roles
+
+`ulmaiApp()` accepts `username` and `role`, where role is either `teacher` or `student`. For every username the app creates a role-independent user folder and both role-specific folders:
+
+```text
+main_dir/users/<username>
+main_dir/teachers/<username>
+main_dir/students/<username>
+```
+
+The active role is still available in `app$glob$role_user_dir`. Shared server-side data that should follow the person across teacher/student contexts belongs under `main_dir/users/<username>`.
+
 ## Upload Storage
 
 Uploaded images are copied under:
@@ -38,7 +50,7 @@ The app exposes `main_dir/uploads` as the Shiny resource path `ulmai-uploads`, s
 
 ## Current Placeholders
 
-The model selector and voice button are UI-ready but intentionally light. The selected model is included in the submit payload, while voice recording currently only toggles a recording state in the client. Both can be connected to server-side behavior without changing the chat layout.
+The model selector is UI-ready but intentionally light. The selected model is included in the submit payload and can be connected to backend model routing without changing the chat layout.
 
 Assistant messages keep enough client-side metadata to support local action buttons. Copy reads the rendered answer text, while redo resends the saved submit payload and replaces the existing assistant answer when the server returns.
 
@@ -50,7 +62,9 @@ Audio recording is implemented in `inst/www/ulmai-audio.js` with the browser `Me
 
 The recording UI offers format and quality choices. `Auto` prefers efficient Opus-based WebM when the browser supports it, then falls back through Ogg and MP4. Quality maps to `audioBitsPerSecond`: Small is 32 kbps, Standard is 64 kbps, and High is 128 kbps. Browsers may ignore or adjust these hints, so the client uses feature detection and falls back to the browser default if a selected MIME type is unavailable.
 
-While recording, a lightweight waveform is drawn on a canvas using the Web Audio `AnalyserNode`. This stays entirely client-side and is only a visual indication of current microphone level.
+While recording, a lightweight waveform is drawn on a canvas using the Web Audio `AnalyserNode`. This stays entirely client-side and is only a visual indication of current microphone level. The `Mic sensitivity` setting changes the waveform scaling, not guaranteed hardware microphone gain.
+
+Audio format, quality, and mic sensitivity are stored in browser `localStorage` under an app-specific key. This is intentionally not a cookie and not server-side JSON: the preference is device/browser-specific, should not be sent with every request, and may sensibly differ between a laptop, office PC, or phone.
 
 When the user presses Done, the browser creates an audio `File` from the recorded blob and assigns it to the hidden Shiny file input `uai_audio_upload`. The R handler in `R/audio.R` receives the normal Shiny upload metadata and copies the file into:
 

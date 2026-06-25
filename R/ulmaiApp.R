@@ -7,14 +7,18 @@ example = function() {
 }
 
 
-ulmaiApp = function(main_dir, uses_fake_ai=TRUE) {
+ulmaiApp = function(main_dir, username="skranz", role="teacher", uses_fake_ai=TRUE) {
   restore.point("ulmaiApp")
   app = eventsApp()
   glob = app$glob
   glob$main_dir = main_dir
+  glob$username = uai_clean_user_name(username)
+  glob$role = uai_normalize_role(role)
   glob$uses_fake_ai = uses_fake_ai
   glob$uploads_dir = uai_uploads_dir(main_dir)
   glob$audio_dir = uai_audio_dir(main_dir)
+  glob$user_dir = uai_user_dir(main_dir=main_dir, username=glob$username)
+  glob$role_user_dir = uai_role_user_dir(main_dir=main_dir, username=glob$username, role=glob$role)
 
   uai_add_resource_paths(main_dir=main_dir)
   app$ui = uai_app_ui()
@@ -66,6 +70,7 @@ uai_init_storage = function(main_dir, app=getApp()) {
   dir.create(main_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$uploads_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$audio_dir, recursive=TRUE, showWarnings=FALSE)
+  uai_init_user_dirs(app=app)
   invisible(TRUE)
 }
 
@@ -275,6 +280,17 @@ uai_audio_recording_ui = function() {
         tags$option(value="standard", selected="selected", "Standard"),
         tags$option(value="small", "Small"),
         tags$option(value="high", "High")
+      ),
+      tags$select(
+        id = "uai_mic_sensitivity",
+        class = "uai-audio-select",
+        `aria-label` = "Mic sensitivity",
+        title = "Mic sensitivity",
+        tags$option(value="1", "Natural"),
+        tags$option(value="2", "Normal"),
+        tags$option(value="3", selected="selected", "Boost"),
+        tags$option(value="5", "High"),
+        tags$option(value="8", "Max")
       )
     ),
     tags$button(
