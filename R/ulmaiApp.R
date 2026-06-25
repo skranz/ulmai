@@ -1,4 +1,5 @@
 example = function() {
+  restore.point("example")
   library(ulmai)
   restore.point.options(display.restore.point = TRUE)
   main_dir = "C:/libraries/ulmai/ulmai_main"
@@ -103,6 +104,7 @@ uai_app_ui = function() {
             class = "uai-icon-button uai-sidebar-close",
             type = "button",
             `aria-label` = "Hide sidebar",
+            title = "Hide sidebar",
             HTML(uai_icon_svg("panel"))
           ),
           tags$div(
@@ -120,6 +122,7 @@ uai_app_ui = function() {
               class = "uai-icon-button uai-sidebar-toggle",
               type = "button",
               `aria-label` = "Toggle sidebar",
+              title = "Show sidebar",
               HTML(uai_icon_svg("panel"))
             ),
             tags$div(class="uai-chat-title", "Example chat"),
@@ -173,6 +176,7 @@ uai_composer_ui = function() {
         class = "uai-icon-button",
         type = "button",
         `aria-label` = "Upload image",
+        title = "Upload image",
         HTML(uai_icon_svg("image"))
       ),
       tags$textarea(
@@ -186,6 +190,7 @@ uai_composer_ui = function() {
         id = "uai_model_select",
         class = "uai-model-select",
         `aria-label` = "Model",
+        title = "Choose model",
         tags$option(value="high", selected="selected", "High"),
         tags$option(value="fast", "Fast"),
         tags$option(value="local", "Local")
@@ -195,6 +200,7 @@ uai_composer_ui = function() {
         class = "uai-icon-button",
         type = "button",
         `aria-label` = "Voice recording",
+        title = "Voice input",
         HTML(uai_icon_svg("mic"))
       ),
       tags$button(
@@ -202,6 +208,7 @@ uai_composer_ui = function() {
         class = "uai-submit-button",
         type = "button",
         `aria-label` = "Submit chat",
+        title = "Send message",
         HTML(uai_icon_svg("send"))
       )
     )

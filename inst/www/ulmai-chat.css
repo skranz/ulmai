@@ -130,6 +130,33 @@ body {
   justify-content: flex-end;
 }
 
+.uai-user-stack {
+  display: grid;
+  justify-items: end;
+  max-width: min(610px, 86%);
+}
+
+.uai-user-stack .uai-bubble {
+  max-width: 100%;
+}
+
+.uai-user-actions {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 28px;
+  margin-top: 6px;
+  color: #6f6f6f;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.uai-message-user:hover .uai-user-actions,
+.uai-message-user:focus-within .uai-user-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .uai-message-assistant {
   color: #101010;
 }

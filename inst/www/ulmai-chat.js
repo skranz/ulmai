@@ -8,6 +8,7 @@
 
   var icons = {
     copy: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M5 15V5h10"></path></svg>',
+    check: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>',
     retry: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.35-5.65"></path><path d="M20 4v6h-6"></path></svg>',
     more: '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h.01"></path><path d="M12 12h.01"></path><path d="M18 12h.01"></path></svg>'
   };
@@ -169,10 +170,12 @@
   function appendUserMessage(message) {
     var messages = byId("uai_chat_messages");
     var article = document.createElement("article");
+    var stack = document.createElement("div");
     var bubble = document.createElement("div");
 
     article.id = message.id;
     article.className = "uai-message uai-message-user";
+    stack.className = "uai-user-stack";
     bubble.className = "uai-bubble";
 
     if (message.uploads && message.uploads.length) {
@@ -182,7 +185,11 @@
       bubble.appendChild(textBlock(message.text));
     }
 
-    article.appendChild(bubble);
+    stack.appendChild(bubble);
+    if (message.text) {
+      stack.appendChild(renderUserActions(message.text));
+    }
+    article.appendChild(stack);
     messages.appendChild(article);
     scrollMessagesToBottom();
   }
@@ -224,7 +231,7 @@
     var canRetry = Boolean(state.assistantRequests[messageId]);
     actions.className = "uai-message-actions";
     actions.appendChild(miniAction("Copy", icons.copy, function () {
-      copyText(text);
+      copyText(text, this);
     }));
     actions.appendChild(miniAction("Redo", icons.retry, function () {
       retryAssistantMessage(messageId);
@@ -238,15 +245,26 @@
     button.className = "uai-mini-action";
     button.type = "button";
     button.setAttribute("aria-label", label);
+    button.title = label;
     button.innerHTML = icon;
     button.disabled = Boolean(disabled);
     if (!disabled) button.addEventListener("click", onClick);
     return button;
   }
 
-  function copyText(text) {
+  function renderUserActions(text) {
+    var actions = document.createElement("div");
+    actions.className = "uai-user-actions";
+    actions.appendChild(miniAction("Copy prompt", icons.copy, function () {
+      copyText(text, this);
+    }));
+    return actions;
+  }
+
+  function copyText(text, button) {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
+      showCopied(button);
       return;
     }
 
@@ -259,6 +277,29 @@
     textarea.select();
     document.execCommand("copy");
     document.body.removeChild(textarea);
+    showCopied(button);
+  }
+
+  function showCopied(button) {
+    if (!button) return;
+    var oldLabel = button.getAttribute("aria-label") || "Copy";
+    var oldTitle = button.title || oldLabel;
+    var oldIcon = button.innerHTML;
+
+    if (button.copyResetTimer) {
+      window.clearTimeout(button.copyResetTimer);
+    }
+
+    button.setAttribute("aria-label", "Copied");
+    button.title = "Copied";
+    button.innerHTML = icons.check;
+
+    button.copyResetTimer = window.setTimeout(function () {
+      button.setAttribute("aria-label", oldLabel);
+      button.title = oldTitle;
+      button.innerHTML = oldIcon;
+      button.copyResetTimer = null;
+    }, 1200);
   }
 
   function retryAssistantMessage(messageId) {
@@ -342,6 +383,7 @@
       remove.className = "uai-preview-remove";
       remove.type = "button";
       remove.setAttribute("aria-label", "Remove upload");
+      remove.title = "Remove image";
       remove.textContent = "x";
       remove.addEventListener("click", function () {
         state.uploads = state.uploads.filter(function (candidate) {
