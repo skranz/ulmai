@@ -306,12 +306,12 @@ body {
   grid-area: recording;
 }
 
-.uai-composer.uai-composer-recording #uai_upload_btn,
-.uai-composer.uai-composer-recording #uai_upload_preview,
+.uai-composer.uai-composer-recording #ullme_upload_btn,
+.uai-composer.uai-composer-recording #ullme_upload_preview,
 .uai-composer.uai-composer-recording .uai-chat-input,
 .uai-composer.uai-composer-recording .uai-model-select,
-.uai-composer.uai-composer-recording #uai_voice_btn,
-.uai-composer.uai-composer-recording #uai_submit_btn {
+.uai-composer.uai-composer-recording #ullme_voice_btn,
+.uai-composer.uai-composer-recording #ullme_submit_btn {
   display: none;
 }
 
@@ -500,15 +500,15 @@ body {
   padding: 9px 8px;
 }
 
-#uai_upload_btn {
+#ullme_upload_btn {
   grid-area: upload;
 }
 
-#uai_voice_btn {
+#ullme_voice_btn {
   grid-area: voice;
 }
 
-#uai_submit_btn {
+#ullme_submit_btn {
   grid-area: submit;
 }
 

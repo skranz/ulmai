@@ -1,22 +1,22 @@
-uai_register_audio_handlers = function(app=getApp()) {
-  restore.point("uai_register_audio_handlers")
+ullme_register_audio_handlers = function(app=getApp()) {
+  restore.point("ullme_register_audio_handlers")
   changeHandler(
-    id = "uai_audio_upload",
-    fun = uai_handle_audio_upload,
+    id = "ullme_audio_upload",
+    fun = ullme_handle_audio_upload,
     app = app
   )
   invisible(TRUE)
 }
 
 
-uai_handle_audio_upload = function(id, value, session, app=getApp(), ...) {
-  restore.point("uai_handle_audio_upload")
+ullme_handle_audio_upload = function(id, value, session, app=getApp(), ...) {
+  restore.point("ullme_handle_audio_upload")
   if (is.null(value) || NROW(value) == 0) return(invisible(NULL))
 
-  audio_dir = uai_session_audio_dir(session=session, app=app)
+  audio_dir = ullme_session_audio_dir(session=session, app=app)
   dir.create(audio_dir, recursive=TRUE, showWarnings=FALSE)
 
-  clean_names = uai_clean_file_name(value$name)
+  clean_names = ullme_clean_file_name(value$name)
   audio_ids = paste0(
     "audio_",
     format(Sys.time(), "%Y%m%d%H%M%S"),
@@ -31,7 +31,7 @@ uai_handle_audio_upload = function(id, value, session, app=getApp(), ...) {
   session_dir = basename(audio_dir)
   urls = paste("ulmai-audio", session_dir, target_names, sep="/")
   records = Map(
-    f = uai_audio_record,
+    f = ullme_audio_record,
     id = audio_ids[copied],
     name = clean_names[copied],
     size = value$size[copied],
@@ -50,8 +50,8 @@ uai_handle_audio_upload = function(id, value, session, app=getApp(), ...) {
 }
 
 
-uai_audio_record = function(id, name, size, type, path, url) {
-  restore.point("uai_audio_record")
+ullme_audio_record = function(id, name, size, type, path, url) {
+  restore.point("ullme_audio_record")
   list(
     id = id,
     name = name,
@@ -63,7 +63,7 @@ uai_audio_record = function(id, name, size, type, path, url) {
 }
 
 
-uai_session_audio_dir = function(session, app=getApp()) {
-  restore.point("uai_session_audio_dir")
-  file.path(app$glob$audio_dir, uai_session_dir_name(session=session))
+ullme_session_audio_dir = function(session, app=getApp()) {
+  restore.point("ullme_session_audio_dir")
+  file.path(app$glob$audio_dir, ullme_session_dir_name(session=session))
 }

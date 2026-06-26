@@ -8,23 +8,23 @@ This keeps the Shiny server focused on work that actually needs R: storing uploa
 
 ## R / shinyEvents Boundary
 
-The app uses `eventsApp()` and registers explicit shinyEvents handlers in `uai_register_handlers()`.
+The app uses `eventsApp()` and registers explicit shinyEvents handlers in `ullme_register_handlers()`.
 
-- `uai_submit_chat_event`: sent by JavaScript when the user submits a message. The payload includes the text, selected model, client message id, assistant placeholder id, and upload metadata.
-- `uai_image_upload`: handled through Shiny's file input binding when the hidden file input changes. The server copies uploaded image files into the active user's current session image folder.
+- `ullme_submit_chat_event`: sent by JavaScript when the user submits a message. The payload includes the text, selected model, client message id, assistant placeholder id, and upload metadata.
+- `ullme_image_upload`: handled through Shiny's file input binding when the hidden file input changes. The server copies uploaded image files into the active user's current session image folder.
 
-The fake AI answer still comes from `uai_ask_ai()`. When a real AI backend is added, `uai_handle_chat_submit()` is the main integration point.
+The fake AI answer still comes from `ullme_ask_ai()`. When a real AI backend is added, `ullme_handle_chat_submit()` is the main integration point.
 
 ## Message Flow
 
 1. JavaScript appends the user message immediately.
 2. JavaScript appends an assistant placeholder with the matching `assistantMessageId`.
-3. JavaScript sends `uai_submit_chat_event` to Shiny.
-4. R calls `uai_ask_ai()`.
+3. JavaScript sends `ullme_submit_chat_event` to Shiny.
+4. R calls `ullme_ask_ai()`.
 5. R calls `window.UlmAI.receiveAssistantMessage(assistantMessageId, answer)`.
 6. JavaScript replaces the placeholder text and adds assistant action buttons.
 
-The first assistant message is created through `uai_intro_msg()`. It is currently simple on purpose so it can later become course-, user-, or context-specific.
+The first assistant message is created through `ullme_intro_msg()`. It is currently simple on purpose so it can later become course-, user-, or context-specific.
 
 ## Users And Roles
 
@@ -68,7 +68,7 @@ While recording, a lightweight waveform is drawn on a canvas using the Web Audio
 
 Audio format, quality, and mic sensitivity are stored in browser `localStorage` under an app-specific key. This is intentionally not a cookie and not server-side JSON: the preference is device/browser-specific, should not be sent with every request, and may sensibly differ between a laptop, office PC, or phone.
 
-When the user presses Done, the browser creates an audio `File` from the recorded blob and assigns it to the hidden Shiny file input `uai_audio_upload`. The R handler in `R/audio.R` receives the normal Shiny upload metadata and copies the file into:
+When the user presses Done, the browser creates an audio `File` from the recorded blob and assigns it to the hidden Shiny file input `ullme_audio_upload`. The R handler in `R/audio.R` receives the normal Shiny upload metadata and copies the file into:
 
 ```text
 main_dir/users/<username>/cur_session/audio/<session-token>/<audio-id>_<clean-file-name>

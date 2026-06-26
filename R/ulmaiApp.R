@@ -3,39 +3,39 @@ example = function() {
   restore.point.options(display.restore.point = TRUE)
   main_dir = "C:/libraries/ulmai/ulmai_main"
   app = ulmaiApp(main_dir)
-  viewApp(app)
+  viewApp(app,launch.browser = TRUE)
 }
 
 
-ulmaiApp = function(main_dir, username="skranz", role="teacher", uses_fake_ai=TRUE) {
+ullmeApp = function(main_dir, username="skranz", role="teacher", uses_fake_ai=TRUE) {
   restore.point("ulmaiApp")
   app = eventsApp()
   glob = app$glob
   glob$main_dir = main_dir
-  glob$username = uai_clean_user_name(username)
-  glob$role = uai_normalize_role(role)
+  glob$username = ullme_clean_user_name(username)
+  glob$role = ullme_normalize_role(role)
   glob$uses_fake_ai = uses_fake_ai
-  glob$user_dir = uai_user_dir(main_dir=main_dir, username=glob$username)
-  glob$role_user_dir = uai_role_user_dir(main_dir=main_dir, username=glob$username, role=glob$role)
-  glob$cur_session_dir = uai_cur_session_dir(user_dir=glob$user_dir)
-  glob$uploads_dir = uai_cur_session_images_dir(cur_session_dir=glob$cur_session_dir)
-  glob$audio_dir = uai_cur_session_audio_dir(cur_session_dir=glob$cur_session_dir)
+  glob$user_dir = ullme_user_dir(main_dir=main_dir, username=glob$username)
+  glob$role_user_dir = ullme_role_user_dir(main_dir=main_dir, username=glob$username, role=glob$role)
+  glob$cur_session_dir = ullme_cur_session_dir(user_dir=glob$user_dir)
+  glob$uploads_dir = ullme_cur_session_images_dir(cur_session_dir=glob$cur_session_dir)
+  glob$audio_dir = ullme_cur_session_audio_dir(cur_session_dir=glob$cur_session_dir)
 
-  uai_add_resource_paths(app=app)
-  app$ui = uai_app_ui()
-  uai_register_handlers(app=app)
+  ullme_add_resource_paths(app=app)
+  app$ui = ullme_app_ui()
+  ullme_register_handlers(app=app)
 
   appInitHandler(function(...) {
     restore.point("ulmai_init")
-    uai_init_app()
+    ullme_init_app()
   })
   app
 }
 
 
-uai_add_resource_paths = function(app=getApp()) {
-  restore.point("uai_add_resource_paths")
-  www_dir = uai_www_dir()
+ullme_add_resource_paths = function(app=getApp()) {
+  restore.point("ullme_add_resource_paths")
+  www_dir = ullme_www_dir()
   dir.create(app$glob$uploads_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$audio_dir, recursive=TRUE, showWarnings=FALSE)
 
@@ -46,8 +46,8 @@ uai_add_resource_paths = function(app=getApp()) {
 }
 
 
-uai_www_dir = function() {
-  restore.point("uai_www_dir")
+ullme_www_dir = function() {
+  restore.point("ullme_www_dir")
   www_dir = system.file("www", package="ulmai")
   if (nzchar(www_dir)) return(www_dir)
 
@@ -58,38 +58,38 @@ uai_www_dir = function() {
 }
 
 
-uai_init_storage = function(main_dir, app=getApp()) {
-  restore.point("uai_init_storage")
+ullme_init_storage = function(main_dir, app=getApp()) {
+  restore.point("ullme_init_storage")
   dir.create(main_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$cur_session_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$uploads_dir, recursive=TRUE, showWarnings=FALSE)
   dir.create(app$glob$audio_dir, recursive=TRUE, showWarnings=FALSE)
-  uai_init_user_dirs(app=app)
+  ullme_init_user_dirs(app=app)
   invisible(TRUE)
 }
 
 
-uai_register_handlers = function(app=getApp()) {
-  restore.point("uai_register_handlers")
+ullme_register_handlers = function(app=getApp()) {
+  restore.point("ullme_register_handlers")
   eventHandler(
-    eventId = "uai_submit_chat_event",
+    eventId = "ullme_submit_chat_event",
     id = NULL,
-    fun = uai_handle_chat_submit,
+    fun = ullme_handle_chat_submit,
     app = app
   )
   changeHandler(
-    id = "uai_image_upload",
-    fun = uai_handle_image_upload,
+    id = "ullme_image_upload",
+    fun = ullme_handle_image_upload,
     app = app
   )
-  uai_register_audio_handlers(app=app)
+  ullme_register_audio_handlers(app=app)
   invisible(TRUE)
 }
 
 
-uai_app_ui = function() {
-  restore.point("uai_app_ui")
-  intro = uai_intro_msg()
+ullme_app_ui = function() {
+  restore.point("ullme_app_ui")
+  intro = ullme_intro_msg()
   tagList(
   tags$head(
       tags$meta(name="viewport", content="width=device-width, initial-scale=1"),
@@ -100,21 +100,21 @@ uai_app_ui = function() {
     tags$div(
       class = "uai-fluid",
       tags$div(
-        id = "uai_app",
+        id = "ullme_app",
         class = "uai-app",
         tags$aside(
           class = "uai-sidebar",
           tags$button(
-            id = "uai_sidebar_close",
+            id = "ullme_sidebar_close",
             class = "uai-icon-button uai-sidebar-close",
             type = "button",
             `aria-label` = "Hide sidebar",
             title = "Hide sidebar",
-            HTML(uai_icon_svg("panel"))
+            HTML(ullme_icon_svg("panel"))
           ),
           tags$div(
             class = "uai-brand",
-            tags$div(class="uai-brand-title", "UlmAI"),
+            tags$div(class="uai-brand-title", "uLLMe", title="Uni Ulm LLM for Economics Education: klein zählt doppelt!"),
             tags$div(class="uai-brand-note", "created by Sebastian Kranz")
           )
         ),
@@ -123,34 +123,34 @@ uai_app_ui = function() {
           tags$header(
             class = "uai-topbar",
             tags$button(
-              id = "uai_sidebar_toggle",
+              id = "ullme_sidebar_toggle",
               class = "uai-icon-button uai-sidebar-toggle",
               type = "button",
               `aria-label` = "Toggle sidebar",
               title = "Show sidebar",
-              HTML(uai_icon_svg("panel"))
+              HTML(ullme_icon_svg("panel"))
             ),
             tags$div(class="uai-chat-title", "Example chat"),
             tags$div(class="uai-topbar-actions")
           ),
           tags$section(
-            id = "uai_chat_messages",
+            id = "ullme_chat_messages",
             class = "uai-chat-messages",
             `data-intro-role` = intro$role,
             `data-intro-text` = intro$text,
             `data-intro-meta` = intro$meta
           ),
-          uai_composer_ui()
+          ullme_composer_ui()
         ),
         tags$input(
-          id = "uai_image_upload",
+          id = "ullme_image_upload",
           class = "uai-file-input",
           type = "file",
           accept = "image/*",
           multiple = "multiple"
         ),
         tags$input(
-          id = "uai_audio_upload",
+          id = "ullme_audio_upload",
           class = "uai-file-input",
           type = "file",
           accept = "audio/*"
@@ -161,8 +161,8 @@ uai_app_ui = function() {
 }
 
 
-uai_intro_msg = function() {
-  restore.point("uai_intro_msg")
+ullme_intro_msg = function() {
+  restore.point("ullme_intro_msg")
   list(
     role = "assistant",
     meta = "Thought for a couple of seconds",
@@ -171,35 +171,35 @@ uai_intro_msg = function() {
 }
 
 
-uai_composer_ui = function() {
-  restore.point("uai_composer_ui")
+ullme_composer_ui = function() {
+  restore.point("ullme_composer_ui")
   tags$footer(
     class = "uai-composer-wrap",
     tags$div(
       class = "uai-composer",
-      uai_audio_recording_ui(),
+      ullme_audio_recording_ui(),
       tags$div(
-        id = "uai_upload_preview",
+        id = "ullme_upload_preview",
         class = "uai-upload-preview",
         `aria-live` = "polite"
       ),
       tags$button(
-        id = "uai_upload_btn",
+        id = "ullme_upload_btn",
         class = "uai-icon-button",
         type = "button",
         `aria-label` = "Upload image",
         title = "Upload image",
-        HTML(uai_icon_svg("image"))
+        HTML(ullme_icon_svg("image"))
       ),
       tags$textarea(
-        id = "uai_chat_input",
+        id = "ullme_chat_input",
         class = "uai-chat-input",
         rows = "1",
         placeholder = "Ask anything",
         `aria-label` = "Chat message"
       ),
       tags$select(
-        id = "uai_model_select",
+        id = "ullme_model_select",
         class = "uai-model-select",
         `aria-label` = "Model",
         title = "Choose model",
@@ -208,33 +208,33 @@ uai_composer_ui = function() {
         tags$option(value="local", "Local")
       ),
       tags$button(
-        id = "uai_voice_btn",
+        id = "ullme_voice_btn",
         class = "uai-icon-button",
         type = "button",
         `aria-label` = "Voice recording",
         title = "Voice input",
-        HTML(uai_icon_svg("mic"))
+        HTML(ullme_icon_svg("mic"))
       ),
       tags$button(
-        id = "uai_submit_btn",
+        id = "ullme_submit_btn",
         class = "uai-submit-button",
         type = "button",
         `aria-label` = "Submit chat",
         title = "Send message",
-        HTML(uai_icon_svg("send"))
+        HTML(ullme_icon_svg("send"))
       )
     )
   )
 }
 
 
-uai_audio_recording_ui = function() {
-  restore.point("uai_audio_recording_ui")
+ullme_audio_recording_ui = function() {
+  restore.point("ullme_audio_recording_ui")
   tags$div(
-    id = "uai_recording_panel",
+    id = "ullme_recording_panel",
     class = "uai-recording-panel",
     tags$button(
-      id = "uai_recording_cancel",
+      id = "ullme_recording_cancel",
       class = "uai-recording-cancel",
       type = "button",
       `aria-label` = "Cancel recording",
@@ -244,10 +244,10 @@ uai_audio_recording_ui = function() {
     tags$div(
       class = "uai-recording-status",
       tags$span(class="uai-recording-dot"),
-      tags$span(id="uai_recording_timer", class="uai-recording-timer", "0:00"),
+      tags$span(id="ullme_recording_timer", class="uai-recording-timer", "0:00"),
       tags$span(class="uai-recording-label", "Recording"),
       tags$canvas(
-        id = "uai_recording_wave",
+        id = "ullme_recording_wave",
         class = "uai-recording-wave",
         width = "180",
         height = "34",
@@ -257,7 +257,7 @@ uai_audio_recording_ui = function() {
     tags$div(
       class = "uai-recording-options",
       tags$select(
-        id = "uai_audio_format",
+        id = "ullme_audio_format",
         class = "uai-audio-select",
         `aria-label` = "Audio format",
         title = "Audio format",
@@ -267,7 +267,7 @@ uai_audio_recording_ui = function() {
         tags$option(value="mp4", "MP4")
       ),
       tags$select(
-        id = "uai_audio_quality",
+        id = "ullme_audio_quality",
         class = "uai-audio-select",
         `aria-label` = "Audio quality",
         title = "Audio quality",
@@ -276,7 +276,7 @@ uai_audio_recording_ui = function() {
         tags$option(value="high", "High")
       ),
       tags$select(
-        id = "uai_mic_sensitivity",
+        id = "ullme_mic_sensitivity",
         class = "uai-audio-select",
         `aria-label` = "Mic sensitivity",
         title = "Mic sensitivity",
@@ -288,7 +288,7 @@ uai_audio_recording_ui = function() {
       )
     ),
     tags$button(
-      id = "uai_recording_finish",
+      id = "ullme_recording_finish",
       class = "uai-recording-finish",
       type = "button",
       `aria-label` = "Finish recording",
@@ -299,8 +299,8 @@ uai_audio_recording_ui = function() {
 }
 
 
-uai_icon_svg = function(name) {
-  restore.point("uai_icon_svg")
+ullme_icon_svg = function(name) {
+  restore.point("ullme_icon_svg")
   icons = list(
     panel = '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M9 4v16"></path></svg>',
     image = '<svg class="uai-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 15l-5-5L5 19"></path></svg>',
@@ -311,22 +311,22 @@ uai_icon_svg = function(name) {
 }
 
 
-uai_init_app = function(app=getApp()) {
-  restore.point("uai_init_app")
-  uai_init_storage(main_dir=app$glob$main_dir, app=app)
+ullme_init_app = function(app=getApp()) {
+  restore.point("ullme_init_app")
+  ullme_init_storage(main_dir=app$glob$main_dir, app=app)
 }
 
 
-uai_handle_chat_submit = function(id=NULL, text="", model=NULL, uploads=NULL,
+ullme_handle_chat_submit = function(id=NULL, text="", model=NULL, uploads=NULL,
                                   clientMessageId=NULL, assistantMessageId=NULL,
                                   session=NULL, app=getApp(), ...) {
-  restore.point("uai_handle_chat_submit")
+  restore.point("ullme_handle_chat_submit")
   text = paste0(text, collapse="\n")
   has_uploads = length(uploads) > 0
   if (!nzchar(trimws(text)) && !has_uploads) return(invisible(NULL))
 
   ai_input = if (nzchar(trimws(text))) text else "[uploaded image]"
-  answer = uai_ask_ai(input=ai_input, uses_fake_ai=uai_uses_fake_ai(app=app))
+  answer = ullme_ask_ai(input=ai_input, uses_fake_ai=ullme_uses_fake_ai(app=app))
   if (is.null(assistantMessageId) || !nzchar(assistantMessageId)) {
     assistantMessageId = paste0("assistant_", as.integer(runif(1, 1, 1e9)))
   }
@@ -339,14 +339,14 @@ uai_handle_chat_submit = function(id=NULL, text="", model=NULL, uploads=NULL,
 }
 
 
-uai_handle_image_upload = function(id, value, session, app=getApp(), ...) {
-  restore.point("uai_handle_image_upload")
+ullme_handle_image_upload = function(id, value, session, app=getApp(), ...) {
+  restore.point("ullme_handle_image_upload")
   if (is.null(value) || NROW(value) == 0) return(invisible(NULL))
 
-  upload_dir = uai_session_upload_dir(session=session, app=app)
+  upload_dir = ullme_session_upload_dir(session=session, app=app)
   dir.create(upload_dir, recursive=TRUE, showWarnings=FALSE)
 
-  clean_names = uai_clean_file_name(value$name)
+  clean_names = ullme_clean_file_name(value$name)
   upload_ids = paste0(
     "img_",
     format(Sys.time(), "%Y%m%d%H%M%S"),
@@ -361,7 +361,7 @@ uai_handle_image_upload = function(id, value, session, app=getApp(), ...) {
   session_dir = basename(upload_dir)
   urls = paste("ulmai-uploads", session_dir, target_names, sep="/")
   records = Map(
-    f = uai_upload_record,
+    f = ullme_upload_record,
     id = upload_ids[copied],
     name = clean_names[copied],
     size = value$size[copied],
@@ -379,8 +379,8 @@ uai_handle_image_upload = function(id, value, session, app=getApp(), ...) {
 }
 
 
-uai_upload_record = function(id, name, size, type, path, url) {
-  restore.point("uai_upload_record")
+ullme_upload_record = function(id, name, size, type, path, url) {
+  restore.point("ullme_upload_record")
   list(
     id = id,
     name = name,
@@ -392,14 +392,14 @@ uai_upload_record = function(id, name, size, type, path, url) {
 }
 
 
-uai_session_upload_dir = function(session, app=getApp()) {
-  restore.point("uai_session_upload_dir")
-  file.path(app$glob$uploads_dir, uai_session_dir_name(session=session))
+ullme_session_upload_dir = function(session, app=getApp()) {
+  restore.point("ullme_session_upload_dir")
+  file.path(app$glob$uploads_dir, ullme_session_dir_name(session=session))
 }
 
 
-uai_session_dir_name = function(session) {
-  restore.point("uai_session_dir_name")
+ullme_session_dir_name = function(session) {
+  restore.point("ullme_session_dir_name")
   token = session$token
   if (is.null(token) || !nzchar(token)) token = "session"
   uai_clean_file_name(token)

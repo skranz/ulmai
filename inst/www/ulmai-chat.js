@@ -24,14 +24,14 @@
   }
 
   function init() {
-    var messages = byId("uai_chat_messages");
-    var input = byId("uai_chat_input");
-    var submitButton = byId("uai_submit_btn");
-    var uploadButton = byId("uai_upload_btn");
-    var fileInput = byId("uai_image_upload");
-    var voiceButton = byId("uai_voice_btn");
-    var sidebarClose = byId("uai_sidebar_close");
-    var sidebarToggle = byId("uai_sidebar_toggle");
+    var messages = byId("ullme_chat_messages");
+    var input = byId("ullme_chat_input");
+    var submitButton = byId("ullme_submit_btn");
+    var uploadButton = byId("ullme_upload_btn");
+    var fileInput = byId("ullme_image_upload");
+    var voiceButton = byId("ullme_voice_btn");
+    var sidebarClose = byId("ullme_sidebar_close");
+    var sidebarToggle = byId("ullme_sidebar_toggle");
 
     if (!messages || !input || !submitButton) return;
 
@@ -91,7 +91,7 @@
     var meta = messages.getAttribute("data-intro-meta") || "";
     if (!text) return;
     appendAssistantMessage({
-      id: "uai_intro_message",
+      id: "ullme_intro_message",
       text: text,
       meta: meta
     });
@@ -112,15 +112,15 @@
   }
 
   function updateSubmitState() {
-    var input = byId("uai_chat_input");
-    var submitButton = byId("uai_submit_btn");
+    var input = byId("ullme_chat_input");
+    var submitButton = byId("ullme_submit_btn");
     if (!input || !submitButton) return;
     submitButton.disabled = input.value.trim().length === 0 && state.uploads.length === 0;
   }
 
   function submitChat() {
-    var input = byId("uai_chat_input");
-    var modelSelect = byId("uai_model_select");
+    var input = byId("ullme_chat_input");
+    var modelSelect = byId("ullme_model_select");
     if (!input) return;
 
     var text = input.value.trim();
@@ -130,7 +130,7 @@
     var clientMessageId = nextId("user");
     var assistantMessageId = nextId("assistant");
     var payload = {
-      id: "uai_submit_chat",
+      id: "ullme_submit_chat",
       clientMessageId: clientMessageId,
       assistantMessageId: assistantMessageId,
       text: text,
@@ -170,11 +170,11 @@
 
   function sendChatEvent(payload) {
     if (window.Shiny && Shiny.setInputValue) {
-      Shiny.setInputValue("uai_submit_chat_event", payload, { priority: "event" });
+      Shiny.setInputValue("ullme_submit_chat_event", payload, { priority: "event" });
       return;
     }
     if (window.Shiny && Shiny.onInputChange) {
-      Shiny.onInputChange("uai_submit_chat_event", payload);
+      Shiny.onInputChange("ullme_submit_chat_event", payload);
       return;
     }
     window.setTimeout(function () {
@@ -183,7 +183,7 @@
   }
 
   function appendUserMessage(message) {
-    var messages = byId("uai_chat_messages");
+    var messages = byId("ullme_chat_messages");
     var article = document.createElement("article");
     var stack = document.createElement("div");
     var bubble = document.createElement("div");
@@ -210,7 +210,7 @@
   }
 
   function appendAssistantMessage(message) {
-    var messages = byId("uai_chat_messages");
+    var messages = byId("ullme_chat_messages");
     var article = document.createElement("article");
     var bubble = document.createElement("div");
     var text = document.createElement("div");
@@ -417,7 +417,7 @@
     });
     if (!files.length) return;
 
-    var fileInput = byId("uai_image_upload");
+    var fileInput = byId("ullme_image_upload");
     if (!fileInput || typeof DataTransfer === "undefined") {
       addLocalUploads(files);
       updateSubmitState();
@@ -444,7 +444,7 @@
   }
 
   function renderUploadPreview() {
-    var preview = byId("uai_upload_preview");
+    var preview = byId("ullme_upload_preview");
     if (!preview) return;
 
     preview.innerHTML = "";
@@ -479,14 +479,14 @@
   }
 
   function clearUploads() {
-    var fileInput = byId("uai_image_upload");
+    var fileInput = byId("ullme_image_upload");
     state.uploads = [];
     if (fileInput) fileInput.value = "";
     renderUploadPreview();
   }
 
   function updateComposerUploadClass() {
-    var preview = byId("uai_upload_preview");
+    var preview = byId("ullme_upload_preview");
     var composer = preview ? preview.closest(".uai-composer") : null;
     if (composer) composer.classList.toggle("uai-composer-has-uploads", state.uploads.length > 0);
   }
@@ -529,13 +529,13 @@
   }
 
   function setSidebarHidden(hidden) {
-    var app = byId("uai_app");
+    var app = byId("ullme_app");
     if (!app) return;
     app.classList.toggle("uai-sidebar-hidden", Boolean(hidden));
   }
 
   function scrollMessagesToBottom() {
-    var messages = byId("uai_chat_messages");
+    var messages = byId("ullme_chat_messages");
     if (!messages) return;
     messages.scrollTop = messages.scrollHeight;
   }

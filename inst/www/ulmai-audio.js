@@ -26,12 +26,12 @@
   }
 
   function init() {
-    var cancelButton = byId("uai_recording_cancel");
-    var finishButton = byId("uai_recording_finish");
+    var cancelButton = byId("ullme_recording_cancel");
+    var finishButton = byId("ullme_recording_finish");
     var settingsInputs = [
-      byId("uai_audio_format"),
-      byId("uai_audio_quality"),
-      byId("uai_mic_sensitivity")
+      byId("ullme_audio_format"),
+      byId("ullme_audio_quality"),
+      byId("ullme_mic_sensitivity")
     ].filter(Boolean);
 
     if (cancelButton) {
@@ -78,7 +78,7 @@
   }
 
   function mediaRecorderOptions() {
-    var format = selectedValue("uai_audio_format", "auto");
+    var format = selectedValue("ullme_audio_format", "auto");
     var types = candidateMimeTypes(format);
     var match = types.find(function (type) {
       return MediaRecorder.isTypeSupported(type);
@@ -105,7 +105,7 @@
   }
 
   function audioQualityOptions() {
-    var quality = state.settings.quality || selectedValue("uai_audio_quality", "standard");
+    var quality = state.settings.quality || selectedValue("ullme_audio_quality", "standard");
     var bits = {
       small: 32000,
       standard: 64000,
@@ -152,7 +152,7 @@
   }
 
   function uploadRecording(blob) {
-    var input = byId("uai_audio_upload");
+    var input = byId("ullme_audio_upload");
     if (!input) {
       setAudioStatus("Audio upload input is missing.");
       resetRecordingUiSoon();
@@ -196,7 +196,7 @@
 
   function showRecordingUi() {
     var composer = document.querySelector(".uai-composer");
-    var voiceButton = byId("uai_voice_btn");
+    var voiceButton = byId("ullme_voice_btn");
     var label = document.querySelector(".uai-recording-label");
     if (composer) composer.classList.add("uai-composer-recording");
     if (voiceButton) {
@@ -218,7 +218,7 @@
 
   function resetRecordingUi() {
     var composer = document.querySelector(".uai-composer");
-    var voiceButton = byId("uai_voice_btn");
+    var voiceButton = byId("ullme_voice_btn");
     if (composer) composer.classList.remove("uai-composer-recording");
     if (voiceButton) {
       voiceButton.classList.remove("uai-voice-active");
@@ -255,7 +255,7 @@
   }
 
   function setTimerText(text) {
-    var timer = byId("uai_recording_timer");
+    var timer = byId("ullme_recording_timer");
     if (timer) timer.textContent = text;
   }
 
@@ -265,7 +265,7 @@
   }
 
   function startWaveform() {
-    var canvas = byId("uai_recording_wave");
+    var canvas = byId("ullme_recording_wave");
     var AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!canvas || !state.stream || !AudioContextClass) {
       clearWaveform();
@@ -286,7 +286,7 @@
   }
 
   function drawWaveform(timestamp) {
-    var canvas = byId("uai_recording_wave");
+    var canvas = byId("ullme_recording_wave");
     if (!canvas || !state.analyser || !state.waveData) return;
 
     if (timestamp - state.waveLastDraw < 80) {
@@ -335,9 +335,9 @@
   }
 
   function readSettingsFromUi() {
-    state.settings.format = selectedValue("uai_audio_format", state.settings.format);
-    state.settings.quality = selectedValue("uai_audio_quality", state.settings.quality);
-    state.settings.sensitivity = clampSensitivity(selectedValue("uai_mic_sensitivity", state.settings.sensitivity));
+    state.settings.format = selectedValue("ullme_audio_format", state.settings.format);
+    state.settings.quality = selectedValue("ullme_audio_quality", state.settings.quality);
+    state.settings.sensitivity = clampSensitivity(selectedValue("ullme_mic_sensitivity", state.settings.sensitivity));
   }
 
   function applySettings(settings) {
@@ -345,9 +345,9 @@
     state.settings.format = validFormat(settings.format || state.settings.format);
     state.settings.quality = validQuality(settings.quality || state.settings.quality);
     state.settings.sensitivity = clampSensitivity(settings.sensitivity || state.settings.sensitivity);
-    setSelectValue("uai_audio_format", state.settings.format);
-    setSelectValue("uai_audio_quality", state.settings.quality);
-    setSelectValue("uai_mic_sensitivity", String(state.settings.sensitivity));
+    setSelectValue("ullme_audio_format", state.settings.format);
+    setSelectValue("ullme_audio_quality", state.settings.quality);
+    setSelectValue("ullme_mic_sensitivity", String(state.settings.sensitivity));
   }
 
   function loadSettingsFromBrowser() {
@@ -435,7 +435,7 @@
   }
 
   function clearWaveform() {
-    var canvas = byId("uai_recording_wave");
+    var canvas = byId("ullme_recording_wave");
     if (!canvas) return;
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
   }
